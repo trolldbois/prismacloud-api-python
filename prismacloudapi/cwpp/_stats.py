@@ -55,3 +55,6 @@ class StatsPrismaCloudAPICWPPMixin:
         # Refreshes the current day's CVE counts and CVE list, as well as their descriptions.
         # This endpoint returns the same response as /api/v1/stats/vulnerabilities, but with updated data for the current day.
         return self.execute_compute('GET', 'api/v1/stats/vulnerabilities/refresh', query_params=query_params)
+
+    def stats_assets_summary(self):
+        return self.execute_compute('GET', 'api/v1/bff/assets/summary')

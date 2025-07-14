@@ -37,8 +37,11 @@ class EndpointsPrismaCloudAPIMixin():
     [x] LIST (v2)
     """
 
-    def alert_filter_suggest(self):
-        return self.execute('GET', 'filter/alert/suggest')
+    def alert_filter_suggest(self, query_params):
+        return self.execute('GET', 'filter/alert/suggest', query_params=query_params)
+
+    def alert_filter_suggest_post(self, body_params):
+        return self.execute('POST', 'filter/alert/suggest', body_params=body_params)
 
     def alert_list_read(self, query_params=None, body_params=None):
         # returns items directly
@@ -486,6 +489,7 @@ class EndpointsPrismaCloudAPIMixin():
         return self.execute('GET', 'v2/inventory', query_params=query_params)
 
     def asset_inventory_list_read_post(self, body_params=None):
+        # timeRange just doesn't work here
         return self.execute('POST', 'v2/inventory', body_params=body_params)
 
     """
@@ -506,6 +510,26 @@ class EndpointsPrismaCloudAPIMixin():
 
     def asset_inventory_list_read_postv_3(self, body_params=None):
         return self.execute('POST', 'v3/inventory', body_params=body_params)
+
+    def asset_inventory_trend_list_read_v3(self, query_params=None):
+        return self.execute('GET', 'v3/inventory/trend', query_params=query_params)
+
+    def asset_inventory_trend_list_read_postv_3(self, body_params=None):
+        return self.execute('POST', 'v3/inventory/trend', body_params=body_params)
+
+    def asset_inventory_v4(self, body_params=None):
+        # timeRange just doesn't work here
+        return self.execute('POST', 'api/v4/inventory', body_params=body_params)
+
+    def asset_inventory_count(self, body_params=None):
+        return self.execute('POST', 'api/v4/aggregation/count', body_params=body_params)
+
+    def asset_inventory_filters(self, query_params=None):
+        return self.execute('GET', 'filter/v2/inventory/suggest', query_params=query_params)
+
+    def asset_inventory_filters_post(self, body_params=None):
+        return self.execute('POST', 'filter/v2/inventory/suggest', body_params=body_params)
+
 
     """
     (Assets) Resources
@@ -540,6 +564,39 @@ class EndpointsPrismaCloudAPIMixin():
             #    self.progress('Resources: %s, Page Size: %s, Page: %s' % (api_response['totalMatchedCount'], body_params['limit'], page_number))
             page_number += 1
         return result
+
+    def resource_scan_info_read_v2(self, body_params=None):
+        page_number = 1
+        while page_number == 1 or 'pageToken' in body_params:
+            api_response = self.execute(
+                'POST', 'api/v2/resource/scan_info', body_params=body_params)
+            if 'resources' in api_response:
+                yield from api_response['resources']
+            if 'nextPageToken' in api_response:
+                body_params['pageToken'] = api_response['nextPageToken']
+            else:
+                body_params.pop('pageToken', None)
+            # if 'totalMatchedCount' in api_response:
+            #    self.progress('Resources: %s, Page Size: %s, Page: %s' % (api_response['totalMatchedCount'], body_params['limit'], page_number))
+            page_number += 1
+        return
+
+    def resource_scan_info_read_v4(self, body_params=None):
+        page_number = 1
+        while page_number == 1 or 'nextPageToken' in body_params:
+            api_response = self.execute(
+                'POST', 'api/v4/resource/scan_info', body_params=body_params)
+            if 'resources' in api_response:
+                yield from api_response['resources']
+            if 'nextPageToken' in api_response:
+                body_params['nextPageToken'] = api_response['nextPageToken']
+            else:
+                body_params.pop('nextPageToken', None)
+            # if 'totalMatchedCount' in api_response:
+            #    self.progress('Resources: %s, Page Size: %s, Page: %s' % (api_response['totalMatchedCount'], body_params['limit'], page_number))
+            page_number += 1
+        return
+
 
     """
     Alert Rules
