@@ -51,6 +51,9 @@ class EndpointsPrismaCloudAPIMixin():
         # returns items in results['items']. But really does not respect pagination request.
         return self.execute_paginated('POST', 'v2/alert', query_params=query_params, body_params=body_params)
 
+    def alert_info(self, alert_id, detailed=False):
+        return self.execute('GET', f'alert/{alert_id}', query_params={'detailed': detailed})
+
     def alert_csv_create(self, body_params=None):
         return self.execute('POST', 'alert/csv', body_params=body_params)
 
