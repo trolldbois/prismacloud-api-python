@@ -12,6 +12,6 @@ class ImagesPrismaCloudAPICWPPMixin:
         images = self.execute_compute_paginated('GET', 'api/v1/images?', query_params=query_params)
         return images
 
-    def images_download(self, query_params=None):
-        images = self.execute_compute('GET', 'api/v1/images/download?', query_params=query_params)
+    def images_download(self, stream=False, query_params=None):
+        images = self.execute_compute('GET', 'api/v1/images/download?', query_params=query_params, stream=stream)
         return images

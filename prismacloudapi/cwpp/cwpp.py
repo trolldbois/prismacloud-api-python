@@ -36,7 +36,7 @@ class PrismaCloudAPICWPPMixin():
     # def _check_
 
     # pylint: disable=too-many-arguments,too-many-branches,too-many-locals,too-many-statements
-    def execute_compute(self, action, endpoint, query_params=None, body_params=None):
+    def execute_compute(self, action, endpoint, query_params=None, body_params=None, stream=False):
         self.suppress_warnings_when_verify_false()
         self.check_extend_login_compute()
         if body_params:
@@ -50,9 +50,15 @@ class PrismaCloudAPICWPPMixin():
         self.debug_print('API Request Headers: (%s)' % self.session_compute.headers)
         self.debug_print('API Query Params: %s' % query_params)
         self.debug_print('API Body Params: %s' % body_params_json)
-        api_response = self.session_compute.request(action, url, params=query_params, data=body_params_json, verify=self.verify, timeout=self.timeout)
+        self.debug_print('API Stream mode: %s' % stream)
+        api_response = self.session_compute.request(action, url, params=query_params, data=body_params_json,
+                                                    verify=self.verify, timeout=self.timeout,
+                                                    stream=stream)
         self.debug_print('API Response Status Code: (%s)' % api_response.status_code)
         self.debug_print('API Response Headers: (%s)' % api_response.headers)
+        if stream:
+            api_response.raise_for_status()
+            return api_response
         # if api_response.status_code in self.retry_status_codes:
         #     for exponential_wait in self.retry_waits:
         #         time.sleep(exponential_wait)
