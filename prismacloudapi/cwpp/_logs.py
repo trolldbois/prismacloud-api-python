@@ -19,6 +19,11 @@ class LogsPrismaCloudAPICWPPMixin:
         logs = self.execute_compute('GET', 'api/v1/logs/console', query_params=query_params)
         return logs
 
-    def system_logs_list_read(self, query_params=None):
-        logs = self.execute_compute('GET', 'api/v1/logs/system/download', query_params=query_params)
+    def console_logs_list_download(self, query_params=None, stream=True):
+        logs = self.execute_compute('GET', 'api/v1/logs/console/download', query_params=query_params, stream=stream)
         return logs
+
+    # this doesn't exists 2026-01
+    # def system_logs_list_read(self, query_params=None):
+    #     logs = self.execute_compute('GET', 'api/v1/logs/system/download', query_params=query_params)
+    #     return logs
