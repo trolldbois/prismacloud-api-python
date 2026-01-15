@@ -931,34 +931,47 @@ class EndpointsPrismaCloudAPIMixin():
         return self.execute('POST', search_url, body_params=search_params)
 
     def search_event_read(self, search_params, subsearch=None):
-        result = []
+        """
+        Search events with pagination support.
+
+        https://pan.dev/prisma-cloud/api/cspm/search-events/
+        """
         next_page_token = None
         search_url = 'search/event'
         if subsearch and subsearch in ['aggregate', 'filtered']:
             search_url = 'search/event/%s' % subsearch
-        api_response = self.execute_paginated(
-            'POST', search_url, body_params=search_params)
+        # return self.execute_paginated('POST', search_url, body_params=search_params)
+        api_response = self.execute('POST', search_url, body_params=search_params)
         if 'data' in api_response and 'items' in api_response['data']:
-            result = api_response['data']['items']
+            yield from api_response['data']['items']
             next_page_token = api_response['data'].pop('nextPageToken', None)
         while next_page_token:
-            api_response = self.execute_paginated(
-                'POST', 'search/config/page', body_params={'limit': 1000, 'pageToken': next_page_token})
+            api_response = self.execute(
+                'POST', 'search/event/page', body_params={'limit': 1000, 'pageToken': next_page_token})
             if 'items' in api_response:
-                result.extend(api_response['items'])
+                yield from api_response['items']
             next_page_token = api_response.pop('nextPageToken', None)
-        return result
+
 
     def search_iam_read(self, search_params):
+        """
+        Search IAM permissions with pagination support.
+
+        https://pan.dev/prisma-cloud/api/cspm/get-permissions-with-post/
+
+        :param search_params: Parameters for the search query.
+        :return: List of IAM permissions.
+        """
         result = []
         next_page_token = None
-        api_response = self.execute_paginated(
-            'POST', 'api/v1/permission', body_params=search_params)
+        # this wouldn't work, as the page is in /page
+        # return self.execute_paginated('POST', 'api/v1/permission', body_params=search_params)
+        api_response = self.execute('POST', 'api/v1/permission', body_params=search_params)
         if 'data' in api_response and 'items' in api_response['data']:
             result = api_response['data']['items']
             next_page_token = api_response['data'].pop('nextPageToken', None)
         while next_page_token:
-            api_response = self.execute_paginated(
+            api_response = self.execute(
                 'POST', 'api/v1/permission/page',
                 body_params={'limit': 1000, 'pageToken': next_page_token, 'withResourceJson': 'true'})
             if 'items' in api_response:
@@ -989,17 +1002,19 @@ class EndpointsPrismaCloudAPIMixin():
         if groupByFields:
             body_params['groupByFields'] = groupByFields
         #
-        next_page_token = None
-        api_response = self.execute('POST', 'iam/api/v4/search/permission', query_params=dict(limit=limit), body_params=body_params)
-        if 'data' in api_response and 'items' in api_response['data']:
-            yield from api_response['data']['items']
-            next_page_token = api_response['data'].pop('nextPageToken', None)
-        while paginate and next_page_token:
-            body_params['nextPageToken'] = next_page_token
-            api_response = self.execute('POST', 'iam/api/v4/search/permission', query_params=dict(limit=limit), body_params=body_params)
-            if 'items' in api_response['data']:
-                yield from api_response['data']['items']
-            next_page_token = api_response.pop('nextPageToken', None)
+        # next_page_token = None
+        return self.execute_paginated('POST', 'iam/api/v4/search/permission',
+                                      query_params=dict(limit=limit), body_params=body_params,
+                                      next_page_key='nextPageToken')
+        # if 'data' in api_response and 'items' in api_response['data']:
+        #     yield from api_response['data']['items']
+        #     next_page_token = api_response['data'].pop('nextPageToken', None)
+        # while paginate and next_page_token:
+        #     body_params['nextPageToken'] = next_page_token
+        #     api_response = self.execute('POST', 'iam/api/v4/search/permission', query_params=dict(limit=limit), body_params=body_params)
+        #     if 'items' in api_response['data']:
+        #         yield from api_response['data']['items']
+        #     next_page_token = api_response.pop('nextPageToken', None)
 
 
     """

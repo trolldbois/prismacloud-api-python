@@ -92,7 +92,7 @@ class PrismaCloudAPIMixin():
             self.error_and_raise(api_response.status_code, 'API: (%s) with query params: (%s) and body params: (%s) responded with an error and this response:\n%s' % (url, query_params, body_params, api_response.text))
         return None
 
-    def execute_paginated(self, action, endpoint, query_params=None, body_params=None, request_headers=None):
+    def execute_paginated(self, action, endpoint, query_params=None, body_params=None, request_headers=None, next_page_key='pageToken'):
         self.suppress_warnings_when_verify_false()
         if not self.token:
             self.login()
@@ -137,10 +137,14 @@ class PrismaCloudAPIMixin():
                     self.debug_print(f'Retrieved Next Page of Results: Offset/Total Count: {returned_count}/{total_count}')
                     returned_count += len(result['items'])
                 #
+                if 'data' in result:
+                    result = result['data']
+                #
                 yield from result['items']
                 if 'nextPageToken' in result and result['nextPageToken']:
                     self.debug_print('Retrieving Next Page of Results')
-                    body_params = {'pageToken': result['nextPageToken']}
+                    # nextPageToken for 'iam/api/v4/search/permission'
+                    body_params = {next_page_key: result['nextPageToken']}
                     more = True
                 else:
                     more = False
