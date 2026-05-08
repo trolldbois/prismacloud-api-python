@@ -62,3 +62,9 @@ class CloudPrismaCloudAPICWPPMixin:
             elif isinstance(v, list):
                 query_params[k] = ','.join(v)
         return self.execute_compute_paginated('GET', 'api/v1/cloud/discovery/entities', query_params=query_params)
+
+    def cloud_scan_rules_list(self):
+        return self.execute_compute('GET', 'api/v1/cloud-scan-rules')
+
+    def cloud_scan_rules_delete(self, credential_id):
+        return self.execute_compute('DELETE', f'api/v1/cloud-scan-rules/{credential_id}')
