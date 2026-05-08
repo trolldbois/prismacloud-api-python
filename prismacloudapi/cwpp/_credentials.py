@@ -9,6 +9,7 @@ class CredentialsPrismaCloudAPICWPPMixin:
     """ Prisma Cloud Compute API Credentials Endpoints Class """
 
     def credential_list_read(self):
+        # doesn't support execute_compute_paginated
         return self.execute_compute('GET', 'api/v1/credentials')
 
     def credential_list_create(self, body):
