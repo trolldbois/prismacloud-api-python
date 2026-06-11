@@ -217,6 +217,14 @@ class EndpointsPrismaCloudAPIMixin():
         return self.execute('POST', f'v2/compliance/posture/trend/{compliance_id}/{requirement_id}',
                             body_params=body_params)
 
+    def compliance_posture_statistics_post_v4(self, filters):
+        """Get Compliance Statistics Breakdown V4 - as seen in UI
+        Takes a filter set in payload.
+        """
+        body_params=dict(filters=filters)
+        return self.execute('POST', 'api/v4/compliance/posture', body_params=body_params)
+
+
     """
     Compliance Standards
 
@@ -900,6 +908,22 @@ class EndpointsPrismaCloudAPIMixin():
         """
         Perform Config Search V2
         `PAN Api docs <https://pan.dev/prisma-cloud/api/cspm/search-config-v-2/>`_
+
+        Executes a search query to retrieve configuration data based on the specified parameters.
+        Supports pagination and includes options to refine the data search.
+
+        Parameters:
+            query (str): The search term used to filter configuration data.
+            start_time (datetime, optional): The starting point of the time range for the search.
+            skip_results (int, optional): The number of records to skip from the search results.
+            limit (int, optional): The maximum number of records to retrieve per request. Defaults to 100.
+            with_resource_json (bool, optional): Whether to include resource JSON in the results.
+            sort (str, optional): Sorting criteria for the results.
+            next_page_token (str, optional): Token used for fetching the next page of results.
+            paginate (bool, optional): Whether to fetch all pages of results. Defaults to True.
+
+        Yields:
+            dict: Configuration data matching the search query, one item at a time.
         """
         # if time_range is None:
         #     time_range = dict(type="relative", value=dict(unit="hour", amount=24))
