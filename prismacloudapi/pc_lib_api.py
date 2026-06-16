@@ -20,17 +20,6 @@ version = importlib.metadata.version("prismacloudapi")
 
 # Prisma Cloud API library.
 
-# pylint: disable=too-few-public-methods
-class CallCounter:
-    """ Decorator to determine number of calls for a method """
-    def __init__(self, method):
-        self.method = method
-        self.counter = 0
-
-    def __call__(self, *args, **kwargs):
-        self.counter += 1
-        return self.method(*args, **kwargs)
-
 # pylint: disable=too-many-instance-attributes
 class PrismaCloudAPI(PrismaCloudAPICSPM, PrismaCloudAPICWPP, PrismaCloudAPIPCCS):
     """ Prisma Cloud API Class """
@@ -74,7 +63,7 @@ class PrismaCloudAPI(PrismaCloudAPICSPM, PrismaCloudAPICWPP, PrismaCloudAPIPCCS)
         self.session_compute.headers['Content-Type'] = 'application/json'
 
     def __repr__(self):
-        return 'Prisma Cloud API:\n  API: (%s)\n  Compute API: (%s)\n  API Error Count: (%s)\n  API Token: (%s)' % (self.api, self.api_compute, self.logger.error.counter, self.token)
+        return 'Prisma Cloud API:\n  API: (%s)\n  Compute API: (%s)\n  API Token: (%s)' % (self.api, self.api_compute, self.token)
 
     def configure(self, settings, use_meta_info=True):
         self.name        = settings.get('name', '')
@@ -91,7 +80,6 @@ class PrismaCloudAPI(PrismaCloudAPICSPM, PrismaCloudAPICWPP, PrismaCloudAPIPCCS)
         filehandler.setLevel(level=logging.DEBUG)
         filehandler.setFormatter(formatter)
         self.logger.addHandler(filehandler)
-        self.logger.error = CallCounter(self.logger.error)
         #
         url = PrismaCloudUtility.normalize_url(settings.get('url', ''))
         if url:

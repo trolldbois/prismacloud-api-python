@@ -162,12 +162,6 @@ class PrismaCloudAPIMixin():
     def error_and_raise(cls, error_code, error_message='', system_message=''):
         raise RuntimeError('\n\nStatus Code: %s\n%s\n%s\n' % (error_code, error_message, system_message))
 
-    # Output counted errors.
-
-    def error_report(self):
-        if self.logger.error.counter > 0:
-            print('API responded with (%s) error(s): details logged to: (%s)' % (self.logger.error.counter, self.error_log))
-
     # Optionally output progress.
 
     @classmethod
