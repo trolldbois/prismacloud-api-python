@@ -954,13 +954,14 @@ class EndpointsPrismaCloudAPIMixin():
             search_url = 'search/filtered'
         return self.execute('POST', search_url, body_params=search_params)
 
-    def search_event_read(self, search_params, subsearch=None):
+    def search_event_read(self, search_params, subsearch=None, limit=None):
         """
         Search events with pagination support.
 
         https://pan.dev/prisma-cloud/api/cspm/search-events/
         """
         next_page_token = None
+        cnt = 0
         search_url = 'search/event'
         if subsearch and subsearch in ['aggregate', 'filtered']:
             search_url = 'search/event/%s' % subsearch
@@ -968,12 +969,14 @@ class EndpointsPrismaCloudAPIMixin():
         api_response = self.execute('POST', search_url, body_params=search_params)
         if 'data' in api_response and 'items' in api_response['data']:
             yield from api_response['data']['items']
+            cnt += len(api_response['data']['items'])
             next_page_token = api_response['data'].pop('nextPageToken', None)
-        while next_page_token:
+        while next_page_token and (limit is not None and cnt < limit):
             api_response = self.execute(
                 'POST', 'search/event/page', body_params={'limit': 1000, 'pageToken': next_page_token})
             if 'items' in api_response:
                 yield from api_response['items']
+                cnt += len(api_response['data']['items'])
             next_page_token = api_response.pop('nextPageToken', None)
 
 
