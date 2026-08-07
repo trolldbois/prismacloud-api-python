@@ -608,6 +608,17 @@ class EndpointsPrismaCloudAPIMixin():
             page_number += 1
         return
 
+    """
+    Asset explorer
+    """
+    def asset_explorer_read(self, asset_id, query_type, body_params=None):
+        if body_params is None:
+            body_params = dict()
+        _params = body_params.copy()
+        _params['assetId'] = asset_id
+        _params['type'] = query_type
+        return self.execute('POST', 'uai/v1/asset', body_params=_params)
+
 
     """
     Alert Rules
@@ -1044,6 +1055,17 @@ class EndpointsPrismaCloudAPIMixin():
         #     next_page_token = api_response.pop('nextPageToken', None)
 
 
+    def get_permissions_accesses_v3(self, permission_id, query, limit):
+        """
+        Returns permissions accessed for a permission id.
+
+        `PAN Api docs <https://pan.dev/prisma-cloud/api/cspm/permissions-accesses-v-3/>`_
+        """
+        body_params = dict(query=query)
+        query_params = dict(limit=limit)
+        return self.execute_paginated('POST', f'iam/api/v3/permission/{permission_id}/list_access',
+                                      query_params=query_params, body_params=body_params,
+                                      next_page_key='nextPageToken')
     """
     Configuration
 
