@@ -2,9 +2,6 @@
 import logging
 import pprint
 
-from scripts.pcs_week_alert_trend import body_params
-
-
 # TODO: Split into multiple files, one per endpoint ...
 
 # pylint: disable=too-many-public-methods
