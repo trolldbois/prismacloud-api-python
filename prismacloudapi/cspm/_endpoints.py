@@ -2,6 +2,9 @@
 import logging
 import pprint
 
+from scripts.pcs_week_alert_trend import body_params
+
+
 # TODO: Split into multiple files, one per endpoint ...
 
 # pylint: disable=too-many-public-methods
@@ -78,6 +81,48 @@ class EndpointsPrismaCloudAPIMixin():
 
     def alert_count_by_status(self, status):
         return self.execute('GET', f'alert/count/{status}')
+
+    def alert_dismiss(self, alert_id_list=None, dismissal_note=None, dismissal_time_range=None,
+                     filter=None, policies=None):
+        """
+        Dismisses one or more alerts on the Prisma Cloud platform.
+        If the caller specifies a dismissal time range, then alerts will snooze for that time period rather than be dismissed.
+
+        https://pan.dev/prisma-cloud/api/cspm/dismiss-alerts/
+        """
+        body_params = dict()
+        if alert_id_list:
+            body_params.update({'alerts': alert_id_list})
+        if dismissal_note:
+            body_params.update({'dismissalNote': dismissal_note})
+        if dismissal_time_range:
+            body_params.update({'dismissalTimeRange': dismissal_time_range})
+        if filter:
+            body_params.update({'filter': filter})
+        if policies:
+            body_params.update({'policies': policies})
+        if len(body_params) == 0:
+            raise ValueError('No parameters provided')
+        return self.execute('POST', f'alert/dismiss', body_params=body_params)
+
+    def alert_reopen(self, alert_id_list=None, dismissal_note=None, dismissal_time_range=None,
+                     filter=None, policies=None):
+        """https://pan.dev/prisma-cloud/api/cspm/reopen-alerts/"""
+        body_params = dict()
+        if alert_id_list:
+            body_params.update({'alerts': alert_id_list})
+        if dismissal_note:
+            body_params.update({'dismissalNote': dismissal_note})
+        if dismissal_time_range:
+            body_params.update({'dismissalTimeRange': dismissal_time_range})
+        if filter:
+            body_params.update({'filter': filter})
+        if policies:
+            body_params.update({'policies': policies})
+        if len(body_params) == 0:
+            raise ValueError('No parameters provided')
+        return self.execute('POST', f'alert/reopen', body_params=body_params)
+
 
     """
     Policies
