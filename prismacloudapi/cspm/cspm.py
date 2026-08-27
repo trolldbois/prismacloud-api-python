@@ -87,7 +87,7 @@ class PrismaCloudAPIMixin():
                     return None
                 self.error_and_raise(api_response.status_code, 'JSON raised ValueError, API: (%s) with query params: (%s) and body params: (%s) parsing response: (%s)' % (url, query_params, body_params, api_response.content))
             return result
-        elif api_response.status_code in [400, 401]:
+        elif api_response.status_code == 401:
             # check why
             self.logger.error(f'API: ({url}) responded with a status of: (401), {self.token_timer=} token_expired:{int(time.time() - self.token_timer) > self.token_limit}')
             self.error_and_raise(api_response.status_code, 'API: (%s) with query params: (%s) and body params: (%s) responded with an error and this response:\n%s' % (url, query_params, body_params, api_response.text))
